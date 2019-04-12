@@ -1,6 +1,6 @@
 import random
 
-from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, AIPlayer
+from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, DarwinPlayer
 
 
 def play(player, grid):
@@ -69,20 +69,26 @@ def end(grid):
 
 if __name__ == '__main__':
     random.seed()
-    players = [AIPlayer("Santiago", 1, "learning"), LethalPlayer("Di10", 2)]
-    print(players[0].mode)
-    #players = [NotSoDumbPlayer("Jason", 1), LethalPlayer("Di10", 2)]
+    players = [NotSoDumbPlayer("Jason", 1), LethalPlayer("Di10", 2)]
     wins = [0, 0, 0]
-    grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-    player = random.randint(0, 1)
-    print(players[player], " starts !")
-    winner = 0
-    while not winner:
-        play(players[player], grid)
-        player = (player + 1) % 2
-        display(grid)
-        winner = end(grid)
-    if winner == 3:
-        print("Draw ! ")
-    else:
-        print(players[winner - 1], "Wins !")
+    for _ in range(1000):
+        players = [NotSoDumbPlayer("Jason", 1), DarwinPlayer("Di10", 2)]
+        grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        player = random.randint(0, 1)
+        print(players[player], " starts !")
+        winner = 0
+        while not winner:
+            play(players[player], grid)
+            player = (player + 1) % 2
+            # display(grid)
+            winner = end(grid)
+        if winner == 3:
+            print("Draw ! ")
+            players[0].draw()
+            players[1].draw()
+        else:
+            players[winner - 1].win()
+            players[winner % 2].loss()
+            print(players[winner - 1], "Wins !")
+        wins[winner - 1] += 1
+        print(wins)
