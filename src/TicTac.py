@@ -1,12 +1,12 @@
 import random
 
-from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer
+from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, AIPlayer
 
 
 def play(player, grid):
     while True:
         try:
-            position = player.generate_play(grid)
+            position = player.generate_play(grid.copy())
             if len(grid) > position >= 0 == grid[position]:
                 grid[position] = player.position
                 return
@@ -69,21 +69,20 @@ def end(grid):
 
 if __name__ == '__main__':
     random.seed()
-    players = [NotSoDumbPlayer("Jason", 1), LethalPlayer("Di10", 2)]
+    players = [AIPlayer("Santiago", 1, "learning"), LethalPlayer("Di10", 2)]
+    print(players[0].mode)
+    #players = [NotSoDumbPlayer("Jason", 1), LethalPlayer("Di10", 2)]
     wins = [0, 0, 0]
-    for _ in range(100):
-        grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        player = random.randint(0, 1)
-        print(players[player], " starts !")
-        winner = 0
-        while not winner:
-            play(players[player], grid)
-            player = (player + 1) % 2
-            display(grid)
-            winner = end(grid)
-        if winner == 3:
-            print("Draw ! ")
-        else:
-            print(players[winner - 1], "Wins !")
-        wins[winner - 1] += 1
-    print(wins)
+    grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    player = random.randint(0, 1)
+    print(players[player], " starts !")
+    winner = 0
+    while not winner:
+        play(players[player], grid)
+        player = (player + 1) % 2
+        display(grid)
+        winner = end(grid)
+    if winner == 3:
+        print("Draw ! ")
+    else:
+        print(players[winner - 1], "Wins !")
