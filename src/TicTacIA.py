@@ -1,10 +1,9 @@
 import json
 import random
-import json
 
 class GenericPlayer:
     def __init__(self, name, position):
-        self.name = name
+        self.name = name.lower()
         self.position = position
 
     def get_name(self):
@@ -128,7 +127,6 @@ class AIPlayer(GenericPlayer):
 
     def _saveFile(self):
         # ASSIGNING STATS FOR CURRENT GAME
-        self._file = open("../memory/" + self.name + ".json", "w+")
         for i in self._game:
             found = 0
             for j in self.memory:
@@ -153,12 +151,23 @@ class AIPlayer(GenericPlayer):
                     i['stats'][2] = i['stats'][2] + 1
                 self.memory.append(i)
         json.dump(self.memory, self._file)
-        self._file.close()
+        self._game = []
 
     def _load(self):
-        # CHECK IF FILE EXISTS, IF NOT CREATE IT
+        import os
+        import sys
+        if os.path.exists("../memory/" + self.name + ".json") == 0:
+            try:
+                if os.path.isdir("../memory") == 0:
+                        os.mkdir("../memory")
+                open("../memory/" + self.name + ".json", 'a').close()
+            except OSError:
+                sys.exit('Fatal Error: cant create the memory for player' + self.name)
         fd = open("../memory/" + self.name + ".json", "r+")
-        data = json.load(fd)
+        try:
+            data = json.load(fd)
+        except ValueError:
+            data = [{}]
         fd.close()
         self.memory = data or ""
 
@@ -171,6 +180,7 @@ class AIPlayer(GenericPlayer):
         # INVALID MODE MESSAGE
         if self.mode != "learning":
             self.mode = "tryhard"
+        self._file = open("../memory/" + self.name + ".json", "w+")
 
     def win(self):
         self._state = "win"
@@ -183,6 +193,9 @@ class AIPlayer(GenericPlayer):
     def draw(self):
         self._state = "draw"
         self._saveFile()
+
+    def __del__(self):
+        self._file.close()
 
     def generate_play(self, grid):
         if self.mode == "learning":

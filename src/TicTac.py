@@ -70,10 +70,11 @@ def end(grid):
 if __name__ == '__main__':
     import sys
     random.seed()
-    #players = [AIPlayer("Santiago", 1, "learning"), NotSoDumbPlayer("Di10", 2)]
+    players = [AIPlayer("Santiago", 1, "learning"), NotSoDumbPlayer("Di10", 2)]
     wins = [0, 0, 0]
-    for _ in range(int(sys.argv[1])):
-        players = [AIPlayer("Santiago", 1, "learning"), NotSoDumbPlayer("Di10", 2)]
+    for i in range(int(sys.argv[1])):
+        print("Game number:", i + 1)
+        #players = [AIPlayer("Santiago", 1, "learning"), NotSoDumbPlayer("Di10", 2)]
         grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         player = random.randint(0, 1)
         #print(players[player], " starts !")
