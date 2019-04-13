@@ -68,7 +68,7 @@ class LethalPlayer(GenericPlayer):
 
 
 class DarwinPlayer(GenericPlayer):
-    
+
     def __init__(self, name, position):
         super().__init__(name, position)
         self.moves, self.stats = self._load_memory()
@@ -127,10 +127,36 @@ class DarwinPlayer(GenericPlayer):
 class AIPlayer(GenericPlayer):
 
     def _saveFile(self):
+        # ASSIGNING STATS FOR CURRENT GAME
+        self._file = open("../memory/" + self.name + ".json", "w+")
+        for i in self._game:
+            found = 0
+            for j in self.memory:
+                try:
+                    if i['grid'] == j['grid'] and i['play'] == j['play']:
+                        found = 1
+                        if self._state == "win":
+                            j['stats'][0] = j['stats'][0] + 1
+                        elif self._state == "draw":
+                            j['stats'][1] = j['stats'][1] + 1
+                        elif self._state == "loss":
+                            j['stats'][2] = j['stats'][2] + 1
+                except KeyError:
+                    pass
+            if found == 0:
+                i['stats'] = [0, 0, 0]
+                if self._state == "win":
+                    i['stats'][0] = i['stats'][0] + 1
+                elif self._state == "draw":
+                    i['stats'][1] = i['stats'][1] + 1
+                elif self._state == "loss":
+                    i['stats'][2] = i['stats'][2] + 1
+                self.memory.append(i)
         json.dump(self.memory, self._file)
         self._file.close()
 
     def _load(self):
+        # CHECK IF FILE EXISTS, IF NOT CREATE IT
         fd = open("../memory/" + self.name + ".json", "r+")
         data = json.load(fd)
         fd.close()
@@ -139,13 +165,23 @@ class AIPlayer(GenericPlayer):
     def __init__(self, name, position, mode=""):
         super().__init__(name, position)
         self.mode = mode
+        self._game = []
+        self._state = ""
         self._load()
-        self._file = open("../memory/" + self.name + ".json", "w+")
         # INVALID MODE MESSAGE
         if self.mode != "learning":
             self.mode = "tryhard"
 
-    def __del__(self):
+    def win(self):
+        self._state = "win"
+        self._saveFile()
+
+    def loss(self):
+        self._state = "loss"
+        self._saveFile()
+
+    def draw(self):
+        self._state = "draw"
         self._saveFile()
 
     def generate_play(self, grid):
@@ -156,7 +192,7 @@ class AIPlayer(GenericPlayer):
                 play = random.randint(0, 8)
             locdic['grid'] = grid
             locdic['play'] = play
-            self.memory.append(locdic)
+            self._game.append(locdic)
         elif self.mode == "tryhard":
             #get_best_play(memoire)
             play = random.randint(0, 8)
