@@ -127,31 +127,31 @@ class AIPlayer(GenericPlayer):
 
     def _saveFile(self):
         # ASSIGNING STATS FOR CURRENT GAME
-        for i in self._game:
-            found = 0
-            for j in self.memory:
-                try:
-                    if i['grid'] == j['grid'] and i['play'] == j['play']:
-                        found = 1
-                        if self._state == "win":
-                            j['stats'][0] = j['stats'][0] + 1
-                        elif self._state == "draw":
-                            j['stats'][1] = j['stats'][1] + 1
-                        elif self._state == "loss":
-                            j['stats'][2] = j['stats'][2] + 1
-                except KeyError:
-                    pass
-            if found == 0:
-                i['stats'] = [0, 0, 0]
-                if self._state == "win":
-                    i['stats'][0] = i['stats'][0] + 1
-                elif self._state == "draw":
-                    i['stats'][1] = i['stats'][1] + 1
-                elif self._state == "loss":
-                    i['stats'][2] = i['stats'][2] + 1
-                self.memory.append(i)
-        json.dump(self.memory, self._file)
-        self._game = []
+        for key, value in self._game.items():
+            grid = str(key)
+            if grid in self.memory:
+                # GRID EXIST
+                for i in value:
+                    if i not in self.memory[grid]:
+                    # PLAY DOES NOT EXIST
+                        self.memory[grid][i] = [0, 0, 0]
+                    if self._state == "win":
+                        self.memory[grid][i][0] += 1
+                    elif self._state == "draw":
+                        self.memory[grid][i][1] += 1
+                    elif self._state == "loss":
+                        self.memory[grid][i][2] += 1
+            else:
+                for i in value:
+                    value[i] = [0, 0, 0]
+                    if self._state == "win":
+                        value[i][0] += 1
+                    elif self._state == "draw":
+                        value[i][1] += 1
+                    elif self._state == "loss":
+                        value[i][2] += 1
+                self.memory[grid] = value
+        self._game = {}
 
     def _load(self):
         import os
@@ -167,14 +167,14 @@ class AIPlayer(GenericPlayer):
         try:
             data = json.load(fd)
         except ValueError:
-            data = [{}]
+            data = {'': ''}
         fd.close()
         self.memory = data or ""
 
     def __init__(self, name, position, mode=""):
         super().__init__(name, position)
         self.mode = mode
-        self._game = []
+        self._game = {}
         self._state = ""
         self._load()
         # INVALID MODE MESSAGE
@@ -195,17 +195,15 @@ class AIPlayer(GenericPlayer):
         self._saveFile()
 
     def __del__(self):
+        json.dump(self.memory, self._file)
         self._file.close()
 
     def generate_play(self, grid):
         if self.mode == "learning":
-            locdic = {}
             play = random.randint(0, 8)
             while grid[play] != 0:
                 play = random.randint(0, 8)
-            locdic['grid'] = grid
-            locdic['play'] = play
-            self._game.append(locdic)
+            self._game[str(grid)]= {play: ''}
         elif self.mode == "tryhard":
             #get_best_play(memoire)
             play = random.randint(0, 8)
