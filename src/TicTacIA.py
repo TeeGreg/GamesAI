@@ -125,22 +125,23 @@ class DarwinPlayer(GenericPlayer):
 
 class AIPlayer(GenericPlayer):
 
-    def _saveFile(self):
+    def _saveData(self):
         # ASSIGNING STATS FOR CURRENT GAME
         for key, value in self._game.items():
             grid = str(key)
-            if grid in self.memory:
+            if grid in self._memory:
                 # GRID EXIST
-                for i in value:
-                    if i not in self.memory[grid]:
+                for play in value:
+                    i = str(play)
+                    if str(i) not in self._memory[grid]:
+                        self._memory[grid][i] = [0, 0, 0]
                     # PLAY DOES NOT EXIST
-                        self.memory[grid][i] = [0, 0, 0]
                     if self._state == "win":
-                        self.memory[grid][i][0] += 1
+                        self._memory[grid][i][0] += 1
                     elif self._state == "draw":
-                        self.memory[grid][i][1] += 1
+                        self._memory[grid][i][1] += 1
                     elif self._state == "loss":
-                        self.memory[grid][i][2] += 1
+                        self._memory[grid][i][2] += 1
             else:
                 for i in value:
                     value[i] = [0, 0, 0]
@@ -150,7 +151,7 @@ class AIPlayer(GenericPlayer):
                         value[i][1] += 1
                     elif self._state == "loss":
                         value[i][2] += 1
-                self.memory[grid] = value
+                self._memory[grid] = value
         self._game = {}
 
     def _load(self):
@@ -169,42 +170,80 @@ class AIPlayer(GenericPlayer):
         except ValueError:
             data = {'': ''}
         fd.close()
-        self.memory = data or ""
+        self._memory = data or ""
 
-    def __init__(self, name, position, mode=""):
+    def __init__(self, name, position, degree=70):
         super().__init__(name, position)
-        self.mode = mode
+        self._degree = 70
+        if degree.isdigit() and 100 >= int(degree) >= 0:
+            self._degree = degree
         self._game = {}
         self._state = ""
         self._load()
         # INVALID MODE MESSAGE
-        if self.mode != "learning":
-            self.mode = "tryhard"
         self._file = open("../memory/" + self.name + ".json", "w+")
 
     def win(self):
         self._state = "win"
-        self._saveFile()
+        self._saveData()
 
     def loss(self):
         self._state = "loss"
-        self._saveFile()
+        self._saveData()
 
     def draw(self):
         self._state = "draw"
-        self._saveFile()
+        self._saveData()
 
     def __del__(self):
-        json.dump(self.memory, self._file)
+        # WRITING DATA TO FILE
+        json.dump(self._memory, self._file)
         self._file.close()
 
+    def _playRandom(self, grid):
+        play = random.randint(0, 8)
+        while grid[play] != 0:
+            play = random.randint(0, 8)
+        return play
+
+    def _getBestPlay(self, grid):
+        # IF NO PLAY, PLAY RANDOM
+        try:
+            possibilities = self._memory[str(grid)]
+        except KeyError:
+            return self._playRandom(grid)
+        lim = 100 - int(self._degree)
+        most = [[-1, 0],
+                [-1, 0]]
+        for play, stats in possibilities.items():
+            rate = 100 * float(stats[0] / (stats[0] + stats[1] + stats[2]))
+            if rate > most[0][1]:
+                most[0][0] = play
+                most[0][1] = rate
+            draw_rate = 100 * float(stats[1] / (stats[0] + stats[1] + stats[2]))
+            if draw_rate > most[1][1]:
+                most[1][0] = play
+                most[1][1] = draw_rate
+        if int(most[0][1]) > lim:
+            # print("RETURN WIN PLAY")
+            return int(most[0][0])
+        elif int(most[1][1]) > 0:
+            # print("RETURN DRAW PLAY")
+            return self._playRandom(grid)
+        # print("RETURN RANDOM PLAY")
+        return self._playRandom(grid)
+
+    def _gridReplace(self, grid):
+        # REPLACE GRID IN ORDER TO BE ABLE TO PLAY PLAYER 1 OR PLAYER 2
+        for i, _ in enumerate(grid):
+            if grid[i] == self.position:
+                grid[i] = 1
+            elif grid[i] != 0:
+                grid[i] = 2
+        return grid
+
     def generate_play(self, grid):
-        if self.mode == "learning":
-            play = random.randint(0, 8)
-            while grid[play] != 0:
-                play = random.randint(0, 8)
-            self._game[str(grid)]= {play: ''}
-        elif self.mode == "tryhard":
-            #get_best_play(memoire)
-            play = random.randint(0, 8)
+        grid = self._gridReplace(grid)
+        play = self._getBestPlay(grid)
+        self._game[str(grid)] = {play: ''}
         return play

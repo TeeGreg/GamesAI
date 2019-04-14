@@ -70,19 +70,28 @@ def end(grid):
 if __name__ == '__main__':
     import sys
     random.seed()
-    players = [AIPlayer("Santiago", 1, "learning"), NotSoDumbPlayer("Di10", 2)]
+    human = 0
+    if "-human" in sys.argv:
+        human = 1
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), HumanPlayer("Human", 2)]
+    else:
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), AIPlayer("Castaneda", 2, sys.argv[3])]
+        #players = [AIPlayer("Santiago", 1, sys.argv[2]), LethalPlayer("Di10", 2)]
+        #players = [AIPlayer("Santiago", 1, sys.argv[2]), NotSoDumbPlayer("Di10", 2)]
     wins = [0, 0, 0]
     for i in range(int(sys.argv[1])):
         print("Game number:", i + 1)
         #players = [AIPlayer("Santiago", 1, "learning"), NotSoDumbPlayer("Di10", 2)]
         grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         player = random.randint(0, 1)
-        #print(players[player], " starts !")
+        if human:
+            print(players[player], " starts !")
         winner = 0
         while not winner:
             play(players[player], grid)
             player = (player + 1) % 2
-            #display(grid)
+            if human:
+                display(grid)
             winner = end(grid)
         if winner == 3:
             #print("Draw ! ")
@@ -91,6 +100,7 @@ if __name__ == '__main__':
         else:
             players[winner - 1].win()
             players[winner % 2].loss()
-            #print(players[winner - 1], "Wins !")
+            if human:
+                print(players[winner - 1], "Wins !")
         wins[winner - 1] += 1
     print(wins)
