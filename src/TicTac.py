@@ -24,9 +24,6 @@ def display(grid):
 
 
 def end(grid):
-    # NO MORE SPACE IN GRID, NO WINNER
-    if 0 not in grid:
-        return 3
     # CHECK DIAGONALES
     if grid[0] == 2 and grid[4] == 2 and grid[8] == 2:
         return 2
@@ -63,6 +60,9 @@ def end(grid):
         return 2
     if 0 not in grid[6:9] and 1 not in grid[6:9]:
         return 2
+    # NO MORE SPACE IN GRID, NO WINNER
+    if 0 not in grid:
+        return 3
 
     return False
 

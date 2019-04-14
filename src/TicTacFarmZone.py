@@ -35,6 +35,8 @@ if __name__ == '__main__':
     if "-human" in sys.argv:
         sys.argv.append("-d")
         cases = [100]
+        end = "Limit"
+        limit = int(sys.argv[sys.argv.index("-l") + 1])
         players = [HumanPlayer("Ezen", 1), AIPlayer("Santiago", 2)]
     else:
         players = [AIPlayer("Santiago", 1), AIPlayer("Dummy", 2)]
