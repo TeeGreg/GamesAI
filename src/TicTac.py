@@ -66,41 +66,47 @@ def end(grid):
 
     return False
 
-
-if __name__ == '__main__':
-    import sys
-    random.seed()
-    human = 0
-    if "-human" in sys.argv:
-        human = 1
-        players = [AIPlayer("Santiago", 1, sys.argv[2]), HumanPlayer("Human", 2)]
-    else:
-        players = [AIPlayer("Santiago", 1, sys.argv[2]), AIPlayer("Castaneda", 2, sys.argv[3])]
-        #players = [AIPlayer("Santiago", 1, sys.argv[2]), LethalPlayer("Di10", 2)]
-        #players = [AIPlayer("Santiago", 1, sys.argv[2]), NotSoDumbPlayer("Di10", 2)]
-    wins = [0, 0, 0]
-    for i in range(int(sys.argv[1])):
-        print("Game number:", i + 1)
-        #players = [AIPlayer("Santiago", 1, "learning"), NotSoDumbPlayer("Di10", 2)]
+def game(players):
+        import sys
         grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         player = random.randint(0, 1)
-        if human:
-            print(players[player], " starts !")
         winner = 0
+        if "-d" in sys.argv:
+            display(grid)
         while not winner:
+            if "-d" in sys.argv:
+                print(players[player].name + "'s turn:")
             play(players[player], grid)
             player = (player + 1) % 2
-            if human:
-                display(grid)
             winner = end(grid)
+            if "-d" in sys.argv:
+                display(grid)
         if winner == 3:
-            #print("Draw ! ")
+            if "-d" in sys.argv:
+                print("Draw ! ")
             players[0].draw()
             players[1].draw()
         else:
             players[winner - 1].win()
             players[winner % 2].loss()
-            if human:
+            if "-d" in sys.argv:
                 print(players[winner - 1], "Wins !")
+        return winner
+
+if __name__ == '__main__':
+    import sys
+    random.seed()
+    if "-lethal" in sys.argv:
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), LethalPlayer("Lethal", 2)]
+    if "-random" in sys.argv:
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), NotSoDumbPlayer("Random", 2)]
+    if "-human" in sys.argv:
+        # ADD HUMAN PLAYER
+        players = [AIPlayer("Santiago", 1), HumanPlayer("Human", 2)]
+    else:
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), AIPlayer("Dummy", 2, sys.argv[3])]
+    wins = [0, 0, 0]
+    for i in range(int(sys.argv[1])):
+        winner = game(players)
         wins[winner - 1] += 1
     print(wins)
