@@ -1,7 +1,8 @@
 import random
+import sys
 
 from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, DarwinPlayer, \
-    SemiLethalPlayer, DefensivePlayer
+    SemiLethalPlayer, DefensivePlayer, AIPlayer
 
 
 def play(player, grid):
@@ -70,47 +71,113 @@ def end(grid):
 
     return False
 
-def game(players):
-        import sys
+
+def game(players, disp=False):
         grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         player = random.randint(0, 1)
         winner = 0
-        if "-d" in sys.argv:
+        if disp:
             display(grid)
         while not winner:
-            if "-d" in sys.argv:
+            if disp:
                 print(players[player].name + "'s turn:")
             play(players[player], grid)
             player = (player + 1) % 2
             winner = end(grid)
-            if "-d" in sys.argv:
+            if disp:
                 display(grid)
         if winner == 3:
-            if "-d" in sys.argv:
+            if disp:
                 print("Draw ! ")
             players[0].draw()
             players[1].draw()
         else:
             players[winner - 1].win()
             players[winner % 2].loss()
-            if "-d" in sys.argv:
+            if disp:
                 print(players[winner - 1], "Wins !")
         return winner
 
-if __name__ == '__main__':
-    import sys
-    random.seed()
-    if "-lethal" in sys.argv:
-        players = [AIPlayer("Santiago", 1, sys.argv[2]), LethalPlayer("Lethal", 2)]
-    if "-random" in sys.argv:
-        players = [AIPlayer("Santiago", 1, sys.argv[2]), NotSoDumbPlayer("Random", 2)]
-    if "-human" in sys.argv:
-        # ADD HUMAN PLAYER
-        players = [AIPlayer("Santiago", 1), HumanPlayer("Human", 2)]
+
+def init_players():
+    if "-try1" in sys.argv:
+        tryhard1 = int(sys.argv[sys.argv.index("-try1") + 1])
     else:
-        players = [AIPlayer("Santiago", 1, sys.argv[2]), AIPlayer("Dummy", 2, sys.argv[3])]
+        tryhard1 = 100
+    if "-try2" in sys.argv:
+        tryhard2 = int(sys.argv[sys.argv.index("-try2") + 1])
+    else:
+        tryhard2 = 100
+
+    if '-p1' in sys.argv:
+        if "-lethal" in sys.argv[sys.argv.index("-p1") + 1]:
+            player1 = LethalPlayer("Lethal", 1)
+        elif "-defensive" in sys.argv[sys.argv.index("-p1") + 1]:
+            player1 = DefensivePlayer("Offensive", 1)
+        elif "-offensive" in sys.argv[sys.argv.index("-p1") + 1]:
+            player1 = SemiLethalPlayer("Defensive", 1)
+        elif "-random" in sys.argv[sys.argv.index("-p1") + 1]:
+            player1 = NotSoDumbPlayer("Random", 1)
+        elif "-human" in sys.argv[sys.argv.index("-p1") + 1]:
+            player1 = HumanPlayer("Human", 1)
+        elif "-darwin" in sys.argv[sys.argv.index("-p1") + 1]:
+            player1 = DarwinPlayer("Di10", 1)
+        elif "-aiplayer" in sys.argv[sys.argv.index("-p1") + 1]:
+            player1 = AIPlayer("Santiago", 1, tryhard1)
+        else:
+            player1 = LethalPlayer("Lethal", 1)
+    else:
+        player1 = LethalPlayer("Lethal", 1)
+    if '-p2' in sys.argv:
+        if "-lethal" in sys.argv[sys.argv.index("-p1") + 1]:
+            player2 = LethalPlayer("Lethal", 2)
+        elif "-defensive" in sys.argv[sys.argv.index("-p1") + 1]:
+            player2 = DefensivePlayer("Offensive", 2)
+        elif "-offensive" in sys.argv[sys.argv.index("-p1") + 1]:
+            player2 = SemiLethalPlayer("Defensive", 2)
+        elif "-random" in sys.argv[sys.argv.index("-p1") + 1]:
+            player2 = NotSoDumbPlayer("Random", 2)
+        elif "-human" in sys.argv[sys.argv.index("-p1") + 1]:
+            player2 = HumanPlayer("Human", 2)
+        elif "-darwin" in sys.argv[sys.argv.index("-p1") + 1]:
+            player2 = DarwinPlayer("Ludo", 2)
+        elif "-aiplayer" in sys.argv[sys.argv.index("-p1") + 1]:
+            player2 = AIPlayer("Santiago", 2, tryhard2)
+        else:
+            player2 = LethalPlayer("Lethal", 2)
+    else:
+        player2 = LethalPlayer("Lethal", 2)
+    players = [player1, player2]
+    return players
+
+
+def play_games(players, game_number):
     wins = [0, 0, 0]
-    for i in range(int(sys.argv[1])):
-        winner = game(players)
+    for i in range(game_number):
+        winner = game(players, "-d" in sys.argv)
         wins[winner - 1] += 1
     print(wins)
+
+
+if __name__ == '__main__':
+    random.seed()
+    if '-h' in sys.argv or len(sys.argv) == 1:
+        print("""
+                -h              | Display the help
+                -g {}           | Game Amount
+                -pX -aiplayer   | PlayerX is a AI player
+                -pX -darwin     | PlayerX is a Darwin player
+                -pX -human      | PlayerX is a Human player
+                -pX -lethal     | PlayerX is a lethal player
+                -pX -offensive  | PlayerX is a offensive player
+                -pX -defensive  | PlayerX is a defensive player
+                -pX -random     | PlayerX is a random player
+                -tryX {}        | Fix the tryhard percentage for player X
+              """)
+        exit(0)
+    if "-g" in sys.argv:
+        gamenumber = int(sys.argv[sys.argv.index("-g") + 1])
+    else:
+        gamenumber = 1
+
+    play_games(init_players(), gamenumber)

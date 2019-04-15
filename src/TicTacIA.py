@@ -1,7 +1,7 @@
 import json
 import random
 
-from utils import convert_string, get_max_rotation, perm_x
+from utils import convert_string, perm_x
 
 
 class GenericPlayer:
@@ -161,7 +161,7 @@ class DarwinPlayer(GenericPlayer):
 
                 # print("returned move", play)
                 return int(play)
-            print("tryhard --------------------------------------------------")
+            # print("tryhard --------------------------------------------------")
         picks = [i for i, x in enumerate(grid) if not x]
         play = random.choice(picks)
         self.new_moves[strigrid] = perm_x(play, index)
@@ -191,14 +191,14 @@ class DarwinPlayer(GenericPlayer):
 
 class AIPlayer(GenericPlayer):
 
-    def _saveData(self):
+    def _save_data(self):
         # ASSIGNING STATS FOR CURRENT GAME
         for key, value in self._game.items():
             grid = str(key)
             if grid in self._memory:
                 # GRID EXIST
                 for play in value:
-                    i = str(play)
+                    i = str(play)  # Why ?
                     if str(i) not in self._memory[grid]:
                         self._memory[grid][i] = [0, 0, 0]
                     # PLAY DOES NOT EXIST
@@ -251,33 +251,33 @@ class AIPlayer(GenericPlayer):
 
     def win(self):
         self._state = "win"
-        self._saveData()
+        self._save_data()
 
     def loss(self):
         self._state = "loss"
-        self._saveData()
+        self._save_data()
 
     def draw(self):
         self._state = "draw"
-        self._saveData()
+        self._save_data()
 
     def __del__(self):
         # WRITING DATA TO FILE
         json.dump(self._memory, self._file)
         self._file.close()
 
-    def _playRandom(self, grid):
+    def _play_random(self, grid):
         play = random.randint(0, 8)
         while grid[play] != 0:
             play = random.randint(0, 8)
         return play
 
-    def _getBestPlay(self, grid):
+    def _get_best_play(self, grid):
         # IF NO PLAY, PLAY RANDOM
         try:
             possibilities = self._memory[str(grid)]
         except KeyError:
-            return self._playRandom(grid)
+            return self._play_random(grid)
         lim = 100 - int(self.degree)
         most = [[-1, 0],
                 [-1, 0]]
@@ -295,11 +295,11 @@ class AIPlayer(GenericPlayer):
             return int(most[0][0])
         elif int(most[1][1]) > 0:
             # print("RETURN DRAW PLAY")
-            return self._playRandom(grid)
+            return self._play_random(grid)
         # print("RETURN RANDOM PLAY")
-        return self._playRandom(grid)
+        return self._play_random(grid)
 
-    def _gridReplace(self, grid):
+    def _grid_replace(self, grid):
         # REPLACE GRID IN ORDER TO BE ABLE TO PLAY PLAYER 1 OR PLAYER 2
         for i, _ in enumerate(grid):
             if grid[i] == self.position:
@@ -309,7 +309,7 @@ class AIPlayer(GenericPlayer):
         return grid
 
     def generate_play(self, grid):
-        grid = self._gridReplace(grid)
-        play = self._getBestPlay(grid)
+        grid = self._grid_replace(grid)
+        play = self._get_best_play(grid)
         self._game[str(grid)] = {str(play): ''}
         return play
