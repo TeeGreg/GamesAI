@@ -1,6 +1,6 @@
 import random
 
-from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, DarwinPlayer
+from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, DarwinPlayer, AIPlayer
 
 
 def play(player, grid):
@@ -24,9 +24,6 @@ def display(grid):
 
 
 def end(grid):
-    # NO MORE SPACE IN GRID, NO WINNER
-    if 0 not in grid:
-        return 3
     # CHECK DIAGONALES
     if grid[0] == 2 and grid[4] == 2 and grid[8] == 2:
         return 2
@@ -63,32 +60,53 @@ def end(grid):
         return 2
     if 0 not in grid[6:9] and 1 not in grid[6:9]:
         return 2
+    # NO MORE SPACE IN GRID, NO WINNER
+    if 0 not in grid:
+        return 3
 
     return False
 
-
-if __name__ == '__main__':
-    random.seed()
-    players = [NotSoDumbPlayer("Jason", 1), LethalPlayer("Di10", 2)]
-    wins = [0, 0, 0]
-    for _ in range(1000):
-        players = [NotSoDumbPlayer("Jason", 1), DarwinPlayer("Di10", 2)]
+def game(players):
+        import sys
         grid = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         player = random.randint(0, 1)
-        print(players[player], " starts !")
         winner = 0
+        if "-d" in sys.argv:
+            display(grid)
         while not winner:
+            if "-d" in sys.argv:
+                print(players[player].name + "'s turn:")
             play(players[player], grid)
             player = (player + 1) % 2
-            # display(grid)
             winner = end(grid)
+            if "-d" in sys.argv:
+                display(grid)
         if winner == 3:
-            print("Draw ! ")
+            if "-d" in sys.argv:
+                print("Draw ! ")
             players[0].draw()
             players[1].draw()
         else:
             players[winner - 1].win()
             players[winner % 2].loss()
-            print(players[winner - 1], "Wins !")
+            if "-d" in sys.argv:
+                print(players[winner - 1], "Wins !")
+        return winner
+
+if __name__ == '__main__':
+    import sys
+    random.seed()
+    if "-lethal" in sys.argv:
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), LethalPlayer("Lethal", 2)]
+    if "-random" in sys.argv:
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), NotSoDumbPlayer("Random", 2)]
+    if "-human" in sys.argv:
+        # ADD HUMAN PLAYER
+        players = [AIPlayer("Santiago", 1), HumanPlayer("Human", 2)]
+    else:
+        players = [AIPlayer("Santiago", 1, sys.argv[2]), AIPlayer("Dummy", 2, sys.argv[3])]
+    wins = [0, 0, 0]
+    for i in range(int(sys.argv[1])):
+        winner = game(players)
         wins[winner - 1] += 1
-        print(wins)
+    print(wins)
