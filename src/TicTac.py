@@ -1,13 +1,17 @@
 import random
 
-from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, DarwinPlayer, AIPlayer
+from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, DarwinPlayer, \
+    SemiLethalPlayer, DefensivePlayer
 
 
 def play(player, grid):
     while True:
         try:
             position = player.generate_play(grid.copy())
+            # print(position)
+            # print(grid, position, grid[position])
             if len(grid) > position >= 0 == grid[position]:
+                # print("blup")
                 grid[position] = player.position
                 return
         except ValueError:

@@ -1,6 +1,9 @@
 import json
 import random
 
+from utils import convert_string, get_max_rotation, perm_x
+
+
 class GenericPlayer:
     def __init__(self, name, position):
         self.name = name.lower()
@@ -53,7 +56,7 @@ class LethalPlayer(GenericPlayer):
         picks = [i for i, x in enumerate(grid) if not x]
         from TicTac import end
         for play in picks:
-            locgrid = grid
+            locgrid = grid.copy()
             locgrid[play] = self.position
             if end(locgrid) == self.position:
                 return play
@@ -66,28 +69,65 @@ class LethalPlayer(GenericPlayer):
         return play
 
 
+class DefensivePlayer(GenericPlayer):
+
+    def generate_play(self, grid):
+        picks = [i for i, x in enumerate(grid) if not x]
+        from TicTac import end
+        for play in picks:
+            locgrid = grid.copy()
+            locgrid[play] = self.position % 2 + 1
+            if end(locgrid) == self.position % 2 + 1:
+                return play
+        play = random.choice(picks)
+        return play
+
+
+class SemiLethalPlayer(GenericPlayer):
+
+    def generate_play(self, grid):
+        picks = [i for i, x in enumerate(grid) if not x]
+        from TicTac import end
+        for play in picks:
+            locgrid = grid.copy()
+            locgrid[play] = self.position
+            if end(locgrid) == self.position:
+                return play
+        play = random.choice(picks)
+        return play
+
+
 class DarwinPlayer(GenericPlayer):
 
     def __init__(self, name, position):
         super().__init__(name, position)
+        self.new_moves = {}
         self.moves, self.stats = self._load_memory()
         # self.tryhard = (self.stats[1] * 100 +
         #                 self.stats[2] * 50 -
         #                 self.stats[0] * 100) / (sum(self.stats)+10)
-        self.tryhard = (2 * self.stats[1] - self.stats[0]) / (sum(self.stats) + 1) * 100
-        print(self.tryhard)
+        # self.tryhard = (2 * self.stats[1] - self.stats[0]) / (sum(self.stats) + 1) * 100
+        # print(self.tryhard)
 
     def _load_memory(self):
         try:
             with open('ressources/darwin.json', 'r') as file:
                 dataset = json.load(file)
                 return dataset[self.name]["moves"], dataset[self.name]["stats"]
-        except (FileNotFoundError, AttributeError):
+        except (FileNotFoundError, KeyError):
             print("No AI with the name")
         return {}, [0, 0, 0]
 
-    def _save(self):
+    def _save(self, issue):
         try:
+            # print(self.new_moves)
+            for move in self.new_moves:
+                if move in self.moves and self.moves[move]["play"] == self.new_moves[move]:
+                    self.moves[move][issue] += 1
+                else:
+                    self.moves[move] = {"play": self.new_moves[move], "win": 0, "loss": 0, "draw": 0}
+                    self.moves[move][issue] += 1
+            self.new_moves = {}
             with open('ressources/darwin.json', 'r') as file:
                 dataset = json.load(file)
                 dataset[self.name] = {"moves": self.moves, "stats": self.stats}
@@ -95,32 +135,58 @@ class DarwinPlayer(GenericPlayer):
             print("No existing file")
             dataset = {self.name: {"moves": self.moves, "stats": self.stats}}
         try:
-            with open('ressources/darwin.json', 'w+') as file:
-                json.dump(dataset, file)
+            try:
+                with open('ressources/darwin.json', 'w+') as file:
+                    json.dump(dataset, file)
+            except KeyboardInterrupt:
+                with open('ressources/darwin.json', 'w+') as file:
+                    json.dump(dataset, file)
+                exit(0)
         except (FileNotFoundError, AttributeError):
             print("Fails to save")
 
     def generate_play(self, grid):
-        if self.tryhard < random.randint(0, 100):
-            if ''.join(str(i) for i in grid) in self.moves:
-                play = self.moves[''.join(str(i) for i in grid)]
-                return play
+        # print("received grid : ", grid)
+        # maxgrid, index = get_max_rotation(grid)
+        maxgrid, index = grid.copy(), 0
+        # print("maxgrid", maxgrid, "index", index)
+        strigrid = convert_string(maxgrid)
+        if strigrid in self.moves:
+            move = self.moves[strigrid]
+            tryhard = (move["loss"] - move["win"]) * 100
+            if tryhard < random.randint(0, 100):
+                # print("found move on maxgrid", move["play"])
+                play = perm_x(move["play"], 4 - index)
+                self.new_moves[strigrid] = perm_x(play, index)
+
+                # print("returned move", play)
+                return int(play)
+            print("tryhard --------------------------------------------------")
         picks = [i for i, x in enumerate(grid) if not x]
         play = random.choice(picks)
-        self.moves[''.join(str(i) for i in grid)] = play
+        self.new_moves[strigrid] = perm_x(play, index)
+        if not strigrid[int(play)]:
+            print("picked move :")
+            from TicTac import display
+            display(grid)
+            print("play :", play)
+            print("saved move :")
+            display(strigrid)
+            print("play :", perm_x(play, index))
+
         return play
 
     def win(self):
         self.stats[0] += 1
-        self._save()
+        self._save("win")
 
     def draw(self):
         self.stats[2] += 1
-        self._save()
+        self._save("draw")
 
     def loss(self):
         self.stats[1] += 1
-        # self._save()
+        self._save("loss")
 
 
 class AIPlayer(GenericPlayer):
