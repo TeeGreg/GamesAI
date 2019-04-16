@@ -119,31 +119,32 @@ class DarwinPlayer(GenericPlayer):
         return {}, [0, 0, 0]
 
     def _save(self, issue):
-        try:
+        pass
+#       try:
             # print(self.new_moves)
-            for move in self.new_moves:
-                if move in self.moves and self.moves[move]["play"] == self.new_moves[move]:
-                    self.moves[move][issue] += 1
-                else:
-                    self.moves[move] = {"play": self.new_moves[move], "win": 0, "loss": 0, "draw": 0}
-                    self.moves[move][issue] += 1
-            self.new_moves = {}
-            with open('ressources/darwin.json', 'r') as file:
-                dataset = json.load(file)
-                dataset[self.name] = {"moves": self.moves, "stats": self.stats}
-        except (FileNotFoundError, AttributeError):
-            print("No existing file")
-            dataset = {self.name: {"moves": self.moves, "stats": self.stats}}
-        try:
-            try:
-                with open('ressources/darwin.json', 'w+') as file:
-                    json.dump(dataset, file)
-            except KeyboardInterrupt:
-                with open('ressources/darwin.json', 'w+') as file:
-                    json.dump(dataset, file)
-                exit(0)
-        except (FileNotFoundError, AttributeError):
-            print("Fails to save")
+        for move in self.new_moves:
+            if move in self.moves and self.moves[move]["play"] == self.new_moves[move]:
+                self.moves[move][issue] += 1
+            else:
+                self.moves[move] = {"play": self.new_moves[move], "win": 0, "loss": 0, "draw": 0}
+                self.moves[move][issue] += 1
+        self.new_moves = {}
+            #with open('ressources/darwin.json', 'r') as file:
+                #dataset = json.load(file)
+                #dataset[self.name] = {"moves": self.moves, "stats": self.stats}
+        #except (FileNotFoundError, AttributeError):
+            #print("No existing file")
+            #dataset = {self.name: {"moves": self.moves, "stats": self.stats}}
+        #try:
+            #try:
+                #with open('ressources/darwin.json', 'w+') as file:
+                    #json.dump(dataset, file)
+            #except KeyboardInterrupt:
+                #with open('ressources/darwin.json', 'w+') as file:
+                    #json.dump(dataset, file)
+                #exit(0)
+        #except (FileNotFoundError, AttributeError):
+            #print("Fails to save")
 
     def generate_play(self, grid):
         # print("received grid : ", grid)
@@ -279,24 +280,23 @@ class AIPlayer(GenericPlayer):
         except KeyError:
             return self._play_random(grid)
         lim = 100 - int(self.degree)
-        most = [[-1, 0],
-                [-1, 0]]
+        #print("Grid:", grid)
+        #print("Tryhard:", lim, "%")
+        #print("Possibilities:", possibilities)
+        plays = {}
         for play, stats in possibilities.items():
             rate = 100 * float(stats[0] / (stats[0] + stats[1] + stats[2]))
-            if rate > most[0][1]:
-                most[0][0] = play
-                most[0][1] = rate
-            draw_rate = 100 * float(stats[1] / (stats[0] + stats[1] + stats[2]))
-            if draw_rate > most[1][1]:
-                most[1][0] = play
-                most[1][1] = draw_rate
-        if int(most[0][1]) > lim:
-            # print("RETURN WIN PLAY")
-            return int(most[0][0])
-        elif int(most[1][1]) > 0:
-            # print("RETURN DRAW PLAY")
-            return self._play_random(grid)
+            if rate >= lim:
+                plays[play] = rate
         # print("RETURN RANDOM PLAY")
+        if plays:
+            #print("Plays:", plays)
+            best = int(max(plays, key=plays.get))
+            if best >= lim:
+                #print("PLAY:", best)
+                return best
+            return int(random.choice(list(plays.keys())))
+            #return int(random.choice(plays))
         return self._play_random(grid)
 
     def _grid_replace(self, grid):

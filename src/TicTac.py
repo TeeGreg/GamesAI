@@ -101,13 +101,13 @@ def game(players, disp=False):
 
 def init_players():
     if "-try1" in sys.argv:
-        tryhard1 = int(sys.argv[sys.argv.index("-try1") + 1])
+        tryhard1 = sys.argv[sys.argv.index("-try1") + 1]
     else:
-        tryhard1 = 100
+        tryhard1 = '65'
     if "-try2" in sys.argv:
-        tryhard2 = int(sys.argv[sys.argv.index("-try2") + 1])
+        tryhard2 = sys.argv[sys.argv.index("-try2") + 1]
     else:
-        tryhard2 = 100
+        tryhard2 = '65'
 
     if '-p1' in sys.argv:
         if "-lethal" in sys.argv[sys.argv.index("-p1") + 1]:
@@ -129,19 +129,19 @@ def init_players():
     else:
         player1 = LethalPlayer("Lethal", 1)
     if '-p2' in sys.argv:
-        if "-lethal" in sys.argv[sys.argv.index("-p1") + 1]:
+        if "-lethal" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = LethalPlayer("Lethal", 2)
-        elif "-defensive" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "-defensive" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = DefensivePlayer("Offensive", 2)
-        elif "-offensive" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "-offensive" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = SemiLethalPlayer("Defensive", 2)
-        elif "-random" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "-random" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = NotSoDumbPlayer("Random", 2)
-        elif "-human" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "-human" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = HumanPlayer("Human", 2)
-        elif "-darwin" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "-darwin" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = DarwinPlayer("Ludo", 2)
-        elif "-aiplayer" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "-aiplayer" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = AIPlayer("Santiago", 2, tryhard2)
         else:
             player2 = LethalPlayer("Lethal", 2)
@@ -154,6 +154,8 @@ def init_players():
 def play_games(players, game_number):
     wins = [0, 0, 0]
     for i in range(game_number):
+        if i % 100 == 0:
+            print("Wins:", wins)
         winner = game(players, "-d" in sys.argv)
         wins[winner - 1] += 1
     print(wins)
