@@ -279,24 +279,14 @@ class AIPlayer(GenericPlayer):
             possibilities = self._memory[str(grid)]
         except KeyError:
             return self._play_random(grid)
-        lim = 100 - int(self.degree)
-        #print("Grid:", grid)
-        #print("Tryhard:", lim, "%")
-        #print("Possibilities:", possibilities)
         plays = {}
         for play, stats in possibilities.items():
-            rate = 100 * float(stats[0] / (stats[0] + stats[1] + stats[2]))
-            if rate >= lim:
+            rate = 100 * float(stats[0] / max(stats[0] + stats[1] + stats[2], 1))
+            if rate > 70:
                 plays[play] = rate
-        # print("RETURN RANDOM PLAY")
         if plays:
-            #print("Plays:", plays)
             best = int(max(plays, key=plays.get))
-            if best >= lim:
-                #print("PLAY:", best)
-                return best
-            return int(random.choice(list(plays.keys())))
-            #return int(random.choice(plays))
+            return best
         return self._play_random(grid)
 
     def _grid_replace(self, grid):
