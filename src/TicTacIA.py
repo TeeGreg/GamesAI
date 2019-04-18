@@ -199,10 +199,10 @@ class AIPlayer(GenericPlayer):
             if grid in self._memory:
                 # GRID EXIST
                 for play in value:
-                    i = str(play)  # Why ?
-                    if str(i) not in self._memory[grid]:
+                    i = str(play)
+                    if i not in self._memory[grid]:
+                        # PLAY DOES NOT EXIST, CREATE IT
                         self._memory[grid][i] = [0, 0, 0]
-                    # PLAY DOES NOT EXIST
                     if self._state == "win":
                         self._memory[grid][i][0] += 1
                     elif self._state == "draw":
@@ -235,9 +235,9 @@ class AIPlayer(GenericPlayer):
         try:
             data = json.load(fd)
         except ValueError:
-            data = {'': ''}
+            data = {}
         fd.close()
-        self._memory = data or ""
+        self._memory = data
 
     def __init__(self, name, position, degree='100'):
         super().__init__(name, position)
@@ -279,13 +279,20 @@ class AIPlayer(GenericPlayer):
             possibilities = self._memory[str(grid)]
         except KeyError:
             return self._play_random(grid)
-        plays = {}
+        wplays = {}
+        dplays = {}
         for play, stats in possibilities.items():
-            rate = 100 * float(stats[0] / max(stats[0] + stats[1] + stats[2], 1))
-            if rate > 70:
-                plays[play] = rate
-        if plays:
-            best = int(max(plays, key=plays.get))
+            wrate = float(stats[0] / max(stats[0] + stats[1] + stats[2], 1)) * 100
+            drate = float(stats[1] / max(stats[0] + stats[1] + stats[2], 1)) * 100
+            if wrate >= 30:
+                wplays[play] = wrate
+            elif drate >= 60:
+                dplays[play] = drate
+        if wplays:
+            best = int(max(wplays, key=wplays.get))
+            return best
+        elif dplays:
+            best = int(max(dplays, key=dplays.get))
             return best
         return self._play_random(grid)
 

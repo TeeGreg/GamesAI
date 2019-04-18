@@ -110,38 +110,38 @@ def init_players():
         tryhard2 = '65'
 
     if '-p1' in sys.argv:
-        if "-lethal" in sys.argv[sys.argv.index("-p1") + 1]:
+        if "lethal" in sys.argv[sys.argv.index("-p1") + 1]:
             player1 = LethalPlayer("Lethal", 1)
-        elif "-defensive" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "defensive" in sys.argv[sys.argv.index("-p1") + 1]:
             player1 = DefensivePlayer("Offensive", 1)
-        elif "-offensive" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "offensive" in sys.argv[sys.argv.index("-p1") + 1]:
             player1 = SemiLethalPlayer("Defensive", 1)
-        elif "-random" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "random" in sys.argv[sys.argv.index("-p1") + 1]:
             player1 = NotSoDumbPlayer("Random", 1)
-        elif "-human" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "human" in sys.argv[sys.argv.index("-p1") + 1]:
             player1 = HumanPlayer("Human", 1)
-        elif "-darwin" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "darwin" in sys.argv[sys.argv.index("-p1") + 1]:
             player1 = DarwinPlayer("Di10", 1)
-        elif "-aiplayer" in sys.argv[sys.argv.index("-p1") + 1]:
+        elif "aiplayer" in sys.argv[sys.argv.index("-p1") + 1]:
             player1 = AIPlayer("Santiago", 1, tryhard1)
         else:
             player1 = LethalPlayer("Lethal", 1)
     else:
         player1 = LethalPlayer("Lethal", 1)
     if '-p2' in sys.argv:
-        if "-lethal" in sys.argv[sys.argv.index("-p2") + 1]:
+        if "lethal" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = LethalPlayer("Lethal", 2)
-        elif "-defensive" in sys.argv[sys.argv.index("-p2") + 1]:
+        elif "defensive" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = DefensivePlayer("Offensive", 2)
-        elif "-offensive" in sys.argv[sys.argv.index("-p2") + 1]:
+        elif "offensive" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = SemiLethalPlayer("Defensive", 2)
-        elif "-random" in sys.argv[sys.argv.index("-p2") + 1]:
+        elif "random" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = NotSoDumbPlayer("Random", 2)
-        elif "-human" in sys.argv[sys.argv.index("-p2") + 1]:
+        elif "human" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = HumanPlayer("Human", 2)
-        elif "-darwin" in sys.argv[sys.argv.index("-p2") + 1]:
+        elif "darwin" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = DarwinPlayer("Ludo", 2)
-        elif "-aiplayer" in sys.argv[sys.argv.index("-p2") + 1]:
+        elif "aiplayer" in sys.argv[sys.argv.index("-p2") + 1]:
             player2 = AIPlayer("Santiago", 2, tryhard2)
         else:
             player2 = LethalPlayer("Lethal", 2)
