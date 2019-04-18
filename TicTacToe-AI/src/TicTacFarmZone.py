@@ -1,7 +1,8 @@
 # MAIN GAME PROCESS
 from TicTac import game
 # CLASSES
-from TicTacIA import AIPlayer, HumanPlayer
+from TicTacIA import HumanPlayer, RandomPlayer, NotSoDumbPlayer, LethalPlayer, DarwinPlayer, \
+    SemiLethalPlayer, DefensivePlayer, AIPlayer
 
 # IMPORTS
 import sys
@@ -12,8 +13,6 @@ import json
 def print_values(players, count, wins):
     if "-s" not in sys.argv:
         print("Played:", count, "games")
-        print(players[0].name + ":", players[0].degree)
-        print(players[1].name + ":", players[1].degree)
         print(wins)
 
 
@@ -28,29 +27,28 @@ if __name__ == '__main__':
         end = "Time"
         final_date = time.time() + int(sys.argv[sys.argv.index("-t") + 1])
     wins = [0, 0, 0]
-    cases = [0, 25, 50, 75, 100]
-    if "-v" in sys.argv:
-        # CHANGE TRYHARD AMOUNT
-        cases = json.loads(sys.argv[sys.argv.index("-v") + 1])
     if "-human" in sys.argv:
         sys.argv.append("-d")
-        cases = [100]
         end = "Limit"
-        limit = int(sys.argv[sys.argv.index("-l") + 1])
+        limit = 1
         players = [HumanPlayer("Ezen", 1), AIPlayer("Santiago", 2)]
+    elif "-random" in sys.argv:
+        players = [AIPlayer("Santiago", 1), NotSoDumbPlayer("NotSoDumb", 2)]
+    elif "-defensive" in sys.argv:
+        players = [AIPlayer("Santiago", 1), DefensivePlayer("Defensive", 2)]
+    elif "-lethal" in sys.argv:
+        players = [AIPlayer("Santiago", 1), LethalPlayer("Lethal", 2)]
     else:
-        players = [AIPlayer("Santiago", 1), AIPlayer("Dummy", 2)]
+        players = [AIPlayer("Santiago", 1), DarwinPlayer("Darwin", 2)]
     count = 1
-    players[0].degree = random.choice(cases)
-    players[1].degree = random.choice(cases)
+    print("Player 1:", players[0].get_name())
+    print("Player 2:", players[1].get_name())
     while True:
         try:
-            winner = game(players)
+            winner = game(players, "-d" in sys.argv)
             wins[winner - 1] += 1
-            if count % 1000 == 0:
+            if count % 10000 == 0:
                 print_values(players, count, wins)
-                players[0].degree = random.choice(cases)
-                players[1].degree = random.choice(cases)
             if end == "Time" and time.time() >= final_date:
                 print_values(players, count, wins)
                 exit()

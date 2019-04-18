@@ -239,11 +239,8 @@ class AIPlayer(GenericPlayer):
         fd.close()
         self._memory = data
 
-    def __init__(self, name, position, degree='100'):
+    def __init__(self, name, position):
         super().__init__(name, position)
-        self.degree = '100'
-        if degree.isdigit() and 100 >= int(degree) >= 0:
-            self.degree = degree
         self._game = {}
         self._state = ""
         self._load()
@@ -280,19 +277,19 @@ class AIPlayer(GenericPlayer):
         except KeyError:
             return self._play_random(grid)
         wplays = {}
-        dplays = {}
+        lplays = {}
         for play, stats in possibilities.items():
             wrate = float(stats[0] / max(stats[0] + stats[1] + stats[2], 1)) * 100
-            drate = float(stats[1] / max(stats[0] + stats[1] + stats[2], 1)) * 100
-            if wrate >= 30:
+            lrate = float(stats[2] / max(stats[0] + stats[1] + stats[2], 1)) * 100
+            if wrate >= 20:
                 wplays[play] = wrate
-            elif drate >= 60:
-                dplays[play] = drate
+            elif lrate <= 40:
+                lplays[play] = lrate
         if wplays:
             best = int(max(wplays, key=wplays.get))
             return best
-        elif dplays:
-            best = int(max(dplays, key=dplays.get))
+        elif lplays:
+            best = int(min(lplays, key=lplays.get))
             return best
         return self._play_random(grid)
 
