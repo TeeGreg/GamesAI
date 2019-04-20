@@ -36,8 +36,43 @@ class Table:
             for card in  cards:
                 self._deck.getCard(card)
 
-    def preFlop(self):
+    def PlayersAreOk(self):
+        leader = 0
+        for player in self._players:
+            state = player.getState()
+            if state >= 0 and leader == 0:
+                leader = state
+            elif state >= 0 and state > leader:
+                return 0
         return 1
+
+    def PlayersReturnHighest(self):
+        leader = 0
+        for player in self._players:
+            state = player.getState()
+            if state >= 0 and state > leader:
+                leader = state
+        return leader
+
+    def playersAction(self, state, highBlind=0):
+        while True:
+            for player in self._players:
+                if highBlind > 0:
+                    action = player.action(state, highBlind)
+                    highBlind = 0
+                else:
+                    action = player.action(state, self.PlayersReturnHighest())
+                self.pot += action
+            if self.PlayersAreOk():
+                break
+
+    def preFlop(self):
+        print("====PREFLOP====")
+        print("= Pot:", self.pot, "=\n")
+        # TODO BLINDS
+        self.playersAction("preflop", 50)
+        print("\n= Pot:", self.pot, "=")
+        print("======END======")
 
     def playOneHand(self):
         # SHUFFLING DECK

@@ -1,7 +1,7 @@
 from classes.table import Table
-from classes.player import Player
+from classes.player import HumanPlayer
 
 if __name__ == '__main__':
-    players = [Player("Patrick", 1), Player("Moundir", 2)]
-    table = Table(players)
+    players = [HumanPlayer("Patrick", 1, 1000), HumanPlayer("Moundir", 2, 1000)]
+    table = Table(players) # BLINDS ?
     table.playOneHand()
