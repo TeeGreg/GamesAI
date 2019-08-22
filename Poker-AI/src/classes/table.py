@@ -32,7 +32,8 @@ class Table:
     def distributeCards(self):
         for player in self._players:
             cards = [ self._deck.throwCard() ]
-            cards.append(self._deck.throwCard())
+            for i in range(4):
+                cards.append(self._deck.throwCard())
             player.takeCards(cards)
 
     def returnCards(self):
@@ -59,9 +60,13 @@ class Table:
                 leader = state
         return leader
 
+    def _potInformations(self):
+        print("- Pot:", str(self.pot) + "💰", "-")
+
     def playersAction(self, state, highBlind=0):
         while True:
             for player in self._players:
+                self._potInformations()
                 if highBlind > 0:
                     action = player.action(state, highBlind)
                     highBlind = 0
@@ -72,13 +77,22 @@ class Table:
                 if self.PlayersAreOk():
                     return
 
-    def preFlop(self):
-        print("====PREFLOP====")
-        print("= Pot:", str(self.pot) + "💰", "=\n")
-        # TODO BLINDS
-        self.playersAction("preflop", 50)
+    def _phaseBeginInformations(self, phase):
+        print("====" + phase + "====")
+        for player in self._players:
+            print(player.getName() + ": " + str(player.getChips()) + "💰")
+        self._potInformations()
+        print("===============")
+
+    def _phaseEndInformations(self, phase):
         print("\n= Pot:", str(self.pot) + "💰", "=")
         print("======END======")
+
+    def preFlop(self):
+        self._phaseBeginInformations("PREFLOP")
+        # TODO BLINDS
+        self.playersAction("preflop", 50)
+        self._phaseEndInformations("PREFLOP")
 
     def playOneHand(self):
         # SHUFFLING DECK
@@ -90,7 +104,6 @@ class Table:
         # ============================================
         # DISTRIBUTING RANDOM CARDS TO PLAYERS
         self.distributeCards()
-        print(self.showPlayersCards("graphic"))
         # PREFLOP PHASE
         self.preFlop()
         # GIVING BACK PLAYERS CARDS TO DECK

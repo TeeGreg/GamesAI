@@ -10,7 +10,7 @@ from classes.card import Card
 class Deck:
 
     def _createColor(self, color, deck):
-        for i in range(1, 14):
+        for i in range(2, 14):
             deck.append(Card(color, i))
         return deck
 

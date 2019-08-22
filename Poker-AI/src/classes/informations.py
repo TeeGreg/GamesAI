@@ -2,6 +2,7 @@ class Informations:
 
     RED = "\033[1;38;5;124m"
     GREEN = "\033[1;38;5;47m"
+    BLUE = "\033[1;38;5;38m"
     ERROR = "\033[1;38;5;63m"
     THINKING = "\033[1;38;5;226m"
     NONE = "\033[0m"
@@ -13,6 +14,8 @@ class Informations:
             print(self.GREEN + message + self.NONE)
         elif state == "error":
             print(self.ERROR + message + self.NONE)
+        elif state == "blue":
+            print(self.BLUE + message + self.NONE)
 
     def availableActions(self):
         print('[bet, follow, check, fold, all-in]')
@@ -40,6 +43,9 @@ class Informations:
 
     def invalidAction(self):
         self._message("error", "→ No, i can't do that!")
+
+    def myBet(self, bet):
+        self._message("blue", "Current bet: " + str(bet) + "💰")
 
     def thinking(self):
         value = ''

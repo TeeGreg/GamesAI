@@ -50,12 +50,14 @@ class Player:
 class HumanPlayer(Player):
 
     def action(self, phase, highest):
+        print("=", self.getName(), phase, "=")
+        self._brain.availableActions()
+        self.showCards("graphic")
+        self._brain.displayCurrentChips(self.chips)
+        self._brain.myBet(self.state)
+        call = highest - self.state
+        self._brain.displayCurrentBet(call)
         while True:
-            print("=", self.getName(), phase, "=")
-            self._brain.availableActions()
-            self._brain.displayCurrentChips(self.chips)
-            call = highest - self.state
-            self._brain.displayCurrentBet(call)
             action = self._brain.thinking()
             if "bet" in action.lower():
                 try:
@@ -66,7 +68,7 @@ class HumanPlayer(Player):
                         self._brain.chipsMissing()
                     else:
                         self._brain.moreChips(call)
-                except IndexError:
+                except:
                     self._brain.betAmount()
                     pass
             elif "follow" in action.lower():
