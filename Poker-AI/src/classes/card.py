@@ -11,21 +11,28 @@ class Card:
     def __init__(self, color, number):
         self.color = color
         self.number = number
+        self.index = 0
 
-    def _print(self, color, number):
+    def _print(self, color, number, index):
         number = self._values[number] if number > 10 else number
-        style = " _______\n"
-        style += '|' + str(number) + self._symbols[color]
+        style = str(index) + "." + " _______\n"
+        style += '  |' + str(number) + self._symbols[color]
         if isinstance(number, int) and number > 9:
             style += '    |\n'
         else:
             style += '     |\n'
-        style += "|_______|"
+        style += "  |_______|"
         print(style)
 
     def getValues(self):
         return {'color': self.color, 'number': self.number}
 
+    def setIndex(self, index):
+        self.index = index
+
+    def getIndex(self):
+        return self.index
+
     def display(self):
-        self._print(self.color, self.number)
+        self._print(self.color, self.number, self.index)
         return self.getValues()

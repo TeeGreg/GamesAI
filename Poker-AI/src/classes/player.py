@@ -26,8 +26,11 @@ class Player:
         return {'name': self.name, 'position': self.position}
 
     def takeCards(self, cards):
+        i = 1
         for card in cards:
+            card.setIndex(i)
             self._hand.append(card)
+            i += 1
 
     def showCards(self, mode="console"):
         if mode == "console":
