@@ -1,4 +1,5 @@
 from classes.card import Card
+from classes.informations import Informations
 
 class Player:
 
@@ -6,7 +7,8 @@ class Player:
         self.name = name.lower()
         self.position = position
         self._hand = []
-        self.chips = 1000
+        self._brain = Informations()
+        self.chips = chips
         # CALL, RAISE, FOLD
         # NUM , NUM  , -1
         self.state = 0
@@ -27,8 +29,10 @@ class Player:
         for card in cards:
             self._hand.append(card)
 
-    def showCards(self):
-        return [ card.getValues() for card in self._hand ]
+    def showCards(self, mode="console"):
+        if mode == "console":
+            return [ card.getValues() for card in self._hand ]
+        return [ card.display() for card in self._hand ]
 
     def giveCards(self):
         ret = [ card for card in self._hand ]
@@ -36,7 +40,7 @@ class Player:
         return ret
 
     def play(self, play):
-        if play >= 0:
+        if play >= 0 and play <= self.chips:
             self.state += play
             self.chips -= play
             return play
@@ -48,18 +52,38 @@ class HumanPlayer(Player):
     def action(self, phase, highest):
         while True:
             print("=", self.getName(), phase, "=")
-            print("Chips:", self.chips)
+            self._brain.availableActions()
+            self._brain.displayCurrentChips(self.chips)
             call = highest - self.state
-            print("To play:", call)
-            action = input()
+            self._brain.displayCurrentBet(call)
+            action = self._brain.thinking()
             if "bet" in action.lower():
                 try:
-                    amount = action.split(' ')[1]
-                    if amount.isdigit() and int(amount) >= call and int(amount) <= self.chips:
-                        return self.play(int(amount))
+                    amount = int(action.split(' ')[1])
+                    if amount >= call:
+                        if self.play(amount) != -1:
+                            return amount
+                        self._brain.chipsMissing()
                     else:
-                        print("! Invalid bet amount !")
+                        self._brain.moreChips(call)
                 except IndexError:
+                    self._brain.betAmount()
                     pass
+            elif "follow" in action.lower():
+                if self.play(call) != -1:
+                    return call
+                self._brain.moreChips(call)
+            elif "check" in action.lower():
+                if call == 0:
+                    return call
+                self._brain.invalidCheck()
+            elif "fold" in action.lower():
+                self.state = -1
+                return -1
+            elif "all-in" in action.lower():
+                maxChips = self.chips
+                if self.play(maxChips) != -1:
+                    return maxChips
+                self._brain.actionError()
             else:
-                print("/_\ Invalid action /_\\")
+                self._brain.invalidAction()

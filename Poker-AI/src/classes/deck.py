@@ -5,7 +5,7 @@ from classes.card import Card
 # COLORS:
 #   CLUBS, DIAMONDS, HEARTS, SPADES
 # VALUES:
-#   ACE: 1, NORMAL: 2-10 ,JACK: 11, QUEEN: 12, KING: 13
+#   ACE: 1, NORMAL: 2-10, JACK: 11, QUEEN: 12, KING: 13
 
 class Deck:
 
@@ -16,7 +16,7 @@ class Deck:
 
     def __init__(self):
         self._deck = self._createColor("Clubs", [])
-        self._deck = self._createColor("Diamond", self._deck)
+        self._deck = self._createColor("Diamonds", self._deck)
         self._deck = self._createColor("Hearts", self._deck)
         self._deck = self._createColor("Spades", self._deck)
 

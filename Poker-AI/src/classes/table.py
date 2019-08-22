@@ -12,8 +12,13 @@ class Table:
     def getPlayers(self):
         return [ player.getPlayer() for player in self._players ]
 
-    def showPlayersCards(self):
-        return [ {'player': player.getName(), 'hand': player.showCards()} for player in self._players ]
+    def showPlayersCards(self, mode="console"):
+        if mode == "console":
+            return [ {'player': player.getName(), 'hand': player.showCards("console")} for player in self._players ]
+        for player in self._players:
+            print(player.getName() + ':')
+            player.showCards("graphic")
+        return ""
 
     def shuffleDeck(self):
         self._deck.shuffleCards()
@@ -42,7 +47,7 @@ class Table:
             state = player.getState()
             if state >= 0 and leader == 0:
                 leader = state
-            elif state >= 0 and state > leader:
+            elif state >= 0 and state != leader:
                 return 0
         return 1
 
@@ -62,16 +67,17 @@ class Table:
                     highBlind = 0
                 else:
                     action = player.action(state, self.PlayersReturnHighest())
-                self.pot += action
-            if self.PlayersAreOk():
-                break
+                if action > 0:
+                    self.pot += action
+                if self.PlayersAreOk():
+                    return
 
     def preFlop(self):
         print("====PREFLOP====")
-        print("= Pot:", self.pot, "=\n")
+        print("= Pot:", str(self.pot) + "💰", "=\n")
         # TODO BLINDS
         self.playersAction("preflop", 50)
-        print("\n= Pot:", self.pot, "=")
+        print("\n= Pot:", str(self.pot) + "💰", "=")
         print("======END======")
 
     def playOneHand(self):
@@ -84,7 +90,7 @@ class Table:
         # ============================================
         # DISTRIBUTING RANDOM CARDS TO PLAYERS
         self.distributeCards()
-        print(self.showPlayersCards())
+        print(self.showPlayersCards("graphic"))
         # PREFLOP PHASE
         self.preFlop()
         # GIVING BACK PLAYERS CARDS TO DECK
