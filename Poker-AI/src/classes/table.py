@@ -5,8 +5,9 @@ from classes.player import Player
 
 class Table:
 
-    def __init__(self, players):
+    def __init__(self, players, blind):
         self._players = players
+        self._blind = blind
         self._deck = Deck()
 
     def getPlayers(self):
@@ -88,31 +89,38 @@ class Table:
     def _phaseEndInformations(self, phase):
         print("\n= Pot:", str(self.pot) + "💰", "=")
 
-    def preFlop(self):
+    def preFlop(self, blind):
         self._phaseBeginInformations("PREFLOP")
         # TODO BLINDS
-        self.playersAction("preflop", 50)
+        self.playersAction("preflop", blind)
         self._phaseEndInformations("PREFLOP")
 
     def switchPhase(self):
         self._phaseBeginInformations("SWITCH PHASE")
         for player in self._players:
-            cards = player.replace()
+            player.replace(self._deck)
+
+    def revealPhase(self):
+        self._phaseBeginInformations("REVEAL")
+        self.playersAction("reveal")
+        # WINNER ?
 
     def playOneHand(self):
         # SHUFFLING DECK
         self.shuffleDeck()
         # INITIALIZING POT TO 0
         self.pot = 0
-        # ============================================
-        # TODO DEFINE PLAYER ORDER DEPENDING ON BLINDS
-        # ============================================
+        # ============================================ #
+        # TODO DEFINE PLAYER ORDER DEPENDING ON BLINDS #
+        # ============================================ #
         # DISTRIBUTING RANDOM CARDS TO PLAYERS
         self.distributeCards()
         # PREFLOP PHASE
-        self.preFlop()
+        self.preFlop(self._blind)
         # CHANGE CARDS PHASE
         self.switchPhase()
+        # LAST PHASE WHERE CARDS ARE REVEALED
+        self.revealPhase()
         # GIVING BACK PLAYERS CARDS TO DECK
         self.returnCards()
         print("======END======")

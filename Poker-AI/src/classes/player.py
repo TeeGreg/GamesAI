@@ -32,6 +32,11 @@ class Player:
             self._hand.append(card)
             i += 1
 
+    def takeCardFromDeck(self, deck, index=0):
+        card = deck.throwCard()
+        card.setIndex(index)
+        self._hand.append(card)
+
     def showCards(self, mode="console"):
         if mode == "console":
             return [ card.getValues() for card in self._hand ]
@@ -66,24 +71,33 @@ class HumanPlayer(Player):
             string = self._brain.thinking()
             if string.lower() == "done":
                 break
-            if string.isdigit():
+            if string.isdigit() and int(string) > 0 and int(string) < 6:
                 choices.append(int(string))
+            else:
+                self._brain.invalidCard()
         return choices
 
-    def replace(self):
+    def replace(self, deck):
         print("=", self.getName(), "=")
         self.showCards("graphic")
-        self.giveSelectedCards(self.selectCards())
-        self.showCards("graphic")
+        self._brain.switchInfos()
+        thrown = self.giveSelectedCards(self.selectCards())
+        for card in thrown:
+            self.takeCardFromDeck(deck, card.getIndex())
+        if len(thrown):
+            self._brain.newHand()
+            self.showCards("graphic")
+        else:
+            self._brain.noChanges()
 
     def action(self, phase, highest):
         print("=", self.getName(), phase, "=")
-        self._brain.availableActions()
         self.showCards("graphic")
         self._brain.displayCurrentChips(self.chips)
         self._brain.myBet(self.state)
         call = highest - self.state
         self._brain.displayCurrentBet(call)
+        self._brain.availableActions()
         while True:
             action = self._brain.thinking()
             if "bet" in action.lower():

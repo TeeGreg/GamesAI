@@ -18,7 +18,7 @@ class Informations:
             print(self.BLUE + message + self.NONE)
 
     def availableActions(self):
-        print('[bet, follow, check, fold, all-in]')
+        self._message("error", '→ I can bet an amount, follow, check, fold and all-in by typing the corresponding command in the console!')
 
     def displayCurrentChips(self, amount):
         self._message("success", "Current chips: " + str(amount) + "💰")
@@ -41,11 +41,24 @@ class Informations:
     def invalidCheck(self):
         self._message("error", "→ No, i can't check now!")
 
+    def switchInfos(self):
+        self._message("error", "→ I can choose cards i want to replace, just by typing their index in the console")
+        self._message("error", "→ Ooops, i must not forget to write 'done' after")
+
     def invalidAction(self):
         self._message("error", "→ No, i can't do that!")
 
     def myBet(self, bet):
         self._message("blue", "Current bet: " + str(bet) + "💰")
+
+    def invalidCard(self):
+        self._message("error", "→ This card does not exists! I must choose an index between 1 and 5")
+
+    def noChanges(self):
+        self._message("error", "→ Ok then no changes, perfect hand")
+
+    def newHand(self):
+        self._message("error", "→ Here is my new hand")
 
     def thinking(self):
         value = ''
