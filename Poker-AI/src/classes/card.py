@@ -25,7 +25,7 @@ class Card:
         print(style)
 
     def getValues(self):
-        return {'color': self.color, 'number': self.number}
+        return {'index': self.index, 'color': self.color, 'number': self.number}
 
     def setIndex(self, index):
         self.index = index

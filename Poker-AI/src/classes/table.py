@@ -39,7 +39,7 @@ class Table:
     def returnCards(self):
         for player in self._players:
             cards = player.giveCards()
-            for card in  cards:
+            for card in cards:
                 self._deck.getCard(card)
 
     def PlayersAreOk(self):
@@ -79,20 +79,25 @@ class Table:
 
     def _phaseBeginInformations(self, phase):
         print("====" + phase + "====")
-        for player in self._players:
-            print(player.getName() + ": " + str(player.getChips()) + "💰")
-        self._potInformations()
-        print("===============")
+        if phase == "PREFLOP":
+            for player in self._players:
+                print(player.getName() + ": " + str(player.getChips()) + "💰")
+            self._potInformations()
+            print("===============")
 
     def _phaseEndInformations(self, phase):
         print("\n= Pot:", str(self.pot) + "💰", "=")
-        print("======END======")
 
     def preFlop(self):
         self._phaseBeginInformations("PREFLOP")
         # TODO BLINDS
         self.playersAction("preflop", 50)
         self._phaseEndInformations("PREFLOP")
+
+    def switchPhase(self):
+        self._phaseBeginInformations("SWITCH PHASE")
+        for player in self._players:
+            cards = player.replace()
 
     def playOneHand(self):
         # SHUFFLING DECK
@@ -106,5 +111,8 @@ class Table:
         self.distributeCards()
         # PREFLOP PHASE
         self.preFlop()
+        # CHANGE CARDS PHASE
+        self.switchPhase()
         # GIVING BACK PLAYERS CARDS TO DECK
         self.returnCards()
+        print("======END======")

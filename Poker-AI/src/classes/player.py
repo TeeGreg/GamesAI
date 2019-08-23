@@ -42,6 +42,14 @@ class Player:
         self._hand = []
         return ret
 
+    def giveSelectedCards(self, indexes):
+        cards = []
+        for card in self._hand[:]:
+            if card.getIndex() in indexes:
+                cards.append(card)
+                self._hand.remove(card)
+        return cards
+
     def play(self, play):
         if play >= 0 and play <= self.chips:
             self.state += play
@@ -51,6 +59,22 @@ class Player:
 
 
 class HumanPlayer(Player):
+
+    def selectCards(self):
+        choices = []
+        while True:
+            string = self._brain.thinking()
+            if string.lower() == "done":
+                break
+            if string.isdigit():
+                choices.append(int(string))
+        return choices
+
+    def replace(self):
+        print("=", self.getName(), "=")
+        self.showCards("graphic")
+        self.giveSelectedCards(self.selectCards())
+        self.showCards("graphic")
 
     def action(self, phase, highest):
         print("=", self.getName(), phase, "=")
