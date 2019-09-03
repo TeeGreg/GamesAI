@@ -1,126 +1,131 @@
 # DECK
 from classes.deck import Deck
+
 # PLAYERS
-from classes.player import Player
+# from classes.player import Player
+
 
 class Table:
-
     def __init__(self, players, blind):
         self._players = players
         self._blind = blind
         self._deck = Deck()
+        self.pot = 0
 
-    def getPlayers(self):
-        return [ player.getPlayer() for player in self._players ]
+    def get_players(self):
+        return [player.get_player() for player in self._players]
 
-    def showPlayersCards(self, mode="console"):
+    def show_players_cards(self, mode="console"):
         if mode == "console":
-            return [ {'player': player.getName(), 'hand': player.showCards("console")} for player in self._players ]
+            return [
+                {"player": player.get_name(), "hand": player.show_cards("console")}
+                for player in self._players
+            ]
         for player in self._players:
-            print(player.getName() + ':')
-            player.showCards("graphic")
+            print(player.get_name() + ":")
+            player.show_cards("graphic")
         return ""
 
-    def shuffleDeck(self):
-        self._deck.shuffleCards()
+    def shuffle_deck(self):
+        self._deck.shuffle_cards()
 
-    def showDeck(self):
-        return self._deck.displayCards()
+    def show_deck(self):
+        return self._deck.display_cards()
 
-    def deckCountCards(self):
-        return self._deck.cardCount()
+    def deck_count_cards(self):
+        return self._deck.card_count()
 
-    def distributeCards(self):
+    def distribute_cards(self):
         for player in self._players:
-            cards = [ self._deck.throwCard() ]
-            for i in range(4):
-                cards.append(self._deck.throwCard())
-            player.takeCards(cards)
+            cards = [self._deck.throw_card()]
+            for _ in range(4):
+                cards.append(self._deck.throw_card())
+            player.take_cards(cards)
 
-    def returnCards(self):
+    def return_cards(self):
         for player in self._players:
-            cards = player.giveCards()
+            cards = player.give_cards()
             for card in cards:
-                self._deck.getCard(card)
+                self._deck.get_card(card)
 
-    def PlayersAreOk(self):
+    def are_player_ok(self):
         leader = 0
         for player in self._players:
-            state = player.getState()
+            state = player.get_state()
             if state >= 0 and leader == 0:
                 leader = state
             elif state >= 0 and state != leader:
                 return 0
         return 1
 
-    def PlayersReturnHighest(self):
+    def highest_player(self):
         leader = 0
         for player in self._players:
-            state = player.getState()
+            state = player.get_state()
             if state >= 0 and state > leader:
                 leader = state
         return leader
 
-    def _potInformations(self):
+    def _pot_informations(self):
         print("- Pot:", str(self.pot) + "💰", "-")
 
-    def playersAction(self, state, highBlind=0):
+    def players_action(self, state, high_blind=0):
         while True:
             for player in self._players:
-                self._potInformations()
-                if highBlind > 0:
-                    action = player.action(state, highBlind)
-                    highBlind = 0
+                self._pot_informations()
+                if high_blind > 0:
+                    action = player.action(state, high_blind)
+                    high_blind = 0
                 else:
-                    action = player.action(state, self.PlayersReturnHighest())
+                    action = player.action(state, self.highest_player())
                 if action > 0:
                     self.pot += action
-                if self.PlayersAreOk():
+                if self.are_player_ok():
                     return
 
-    def _phaseBeginInformations(self, phase):
+    def _phase_begin_informations(self, phase):
         print("====" + phase + "====")
         if phase == "PREFLOP":
             for player in self._players:
-                print(player.getName() + ": " + str(player.getChips()) + "💰")
-            self._potInformations()
+                print(player.get_name() + ": " + str(player.get_chips()) + "💰")
+            self._pot_informations()
             print("===============")
 
-    def _phaseEndInformations(self, phase):
+    def _phase_end_informations(self, phase):
         print("\n= Pot:", str(self.pot) + "💰", "=")
 
-    def preFlop(self, blind):
-        self._phaseBeginInformations("PREFLOP")
+    def pre_flop(self, blind):
+        self._phase_begin_informations("PREFLOP")
         # TODO BLINDS
-        self.playersAction("preflop", blind)
-        self._phaseEndInformations("PREFLOP")
+        self.players_action("preflop", blind)
+        self._phase_end_informations("PREFLOP")
 
-    def switchPhase(self):
-        self._phaseBeginInformations("SWITCH PHASE")
+    def switch_phase(self):
+        self._phase_begin_informations("SWITCH PHASE")
         for player in self._players:
             player.replace(self._deck)
 
-    def revealPhase(self):
-        self._phaseBeginInformations("REVEAL")
-        self.playersAction("reveal")
+    def reveal_phase(self):
+        self._phase_begin_informations("REVEAL")
+        self.players_action("reveal")
         # WINNER ?
 
-    def playOneHand(self):
+    def play_one_hand(self):
         # SHUFFLING DECK
-        self.shuffleDeck()
+        self.shuffle_deck()
         # INITIALIZING POT TO 0
         self.pot = 0
         # ============================================ #
         # TODO DEFINE PLAYER ORDER DEPENDING ON BLINDS #
         # ============================================ #
         # DISTRIBUTING RANDOM CARDS TO PLAYERS
-        self.distributeCards()
+        self.distribute_cards()
         # PREFLOP PHASE
-        self.preFlop(self._blind)
+        self.pre_flop(self._blind)
         # CHANGE CARDS PHASE
-        self.switchPhase()
+        self.switch_phase()
         # LAST PHASE WHERE CARDS ARE REVEALED
-        self.revealPhase()
+        self.reveal_phase()
         # GIVING BACK PLAYERS CARDS TO DECK
-        self.returnCards()
+        self.return_cards()
         print("======END======")

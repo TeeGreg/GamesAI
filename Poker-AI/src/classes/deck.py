@@ -7,34 +7,33 @@ from classes.card import Card
 # VALUES:
 #   ACE: 1, NORMAL: 2-10, JACK: 11, QUEEN: 12, KING: 13
 
-class Deck:
 
-    def _createColor(self, color, deck):
+class Deck:
+    def _create_color(self, color):
         for i in range(2, 14):
-            deck.append(Card(color, i))
-        return deck
+            self._deck.append(Card(color, i))
+        return self
 
     def __init__(self):
-        self._deck = self._createColor("Clubs", [])
-        self._deck = self._createColor("Diamonds", self._deck)
-        self._deck = self._createColor("Hearts", self._deck)
-        self._deck = self._createColor("Spades", self._deck)
+        self._deck = []
+        self._create_color("Clubs")._create_color("Diamonds")\
+        ._create_color("Hearts")._create_color("Spades")
 
-    def shuffleCards(self):
+    def shuffle_cards(self):
         random.shuffle(self._deck)
         return self._deck
 
-    def displayCards(self):
-        return [ card.getValues() for card in self._deck ]
+    def display_cards(self):
+        return [card.get_values() for card in self._deck]
 
-    def cardCount(self):
+    def card_count(self):
         return len(self._deck)
 
-    def throwCard(self):
+    def throw_card(self):
         choice = random.choice(self._deck)
         self._deck.remove(choice)
         return choice
 
-    def getCard(self, card):
+    def get_card(self, card):
         self._deck.append(card)
         return card

@@ -1,8 +1,8 @@
-from classes.card import Card
+# from classes.card import Card
 from classes.informations import Informations
 
-class Player:
 
+class Player:
     def __init__(self, name, position, chips):
         self.name = name.lower()
         self.position = position
@@ -13,50 +13,50 @@ class Player:
         # NUM , NUM  , -1
         self.state = 0
 
-    def getName(self):
+    def get_name(self):
         return self.name
 
-    def getState(self):
+    def get_state(self):
         return self.state
 
-    def getChips(self):
+    def get_chips(self):
         return self.chips
 
-    def getPlayer(self):
-        return {'name': self.name, 'position': self.position}
+    def get_player(self):
+        return {"name": self.name, "position": self.position}
 
-    def takeCards(self, cards):
+    def take_cards(self, cards):
         i = 1
         for card in cards:
-            card.setIndex(i)
+            card.set_index(i)
             self._hand.append(card)
             i += 1
 
-    def takeCardFromDeck(self, deck, index=0):
-        card = deck.throwCard()
-        card.setIndex(index)
+    def take_card_from_deck(self, deck, index=0):
+        card = deck.throw_card()
+        card.set_index(index)
         self._hand.append(card)
 
-    def showCards(self, mode="console"):
+    def show_cards(self, mode="console"):
         if mode == "console":
-            return [ card.getValues() for card in self._hand ]
-        return [ card.display() for card in self._hand ]
+            return [card.get_values() for card in self._hand]
+        return [card.display() for card in self._hand]
 
-    def giveCards(self):
-        ret = [ card for card in self._hand ]
+    def give_cards(self):
+        ret = [card for card in self._hand]
         self._hand = []
         return ret
 
-    def giveSelectedCards(self, indexes):
+    def give_selected_cards(self, indexes):
         cards = []
         for card in self._hand[:]:
-            if card.getIndex() in indexes:
+            if card.get_index() in indexes:
                 cards.append(card)
                 self._hand.remove(card)
         return cards
 
     def play(self, play):
-        if play >= 0 and play <= self.chips:
+        if 0 <= play <= self.chips:
             self.state += play
             self.chips -= play
             return play
@@ -64,8 +64,7 @@ class Player:
 
 
 class HumanPlayer(Player):
-
-    def selectCards(self):
+    def select_cards(self):
         choices = []
         while True:
             string = self._brain.thinking()
@@ -74,59 +73,58 @@ class HumanPlayer(Player):
             if string.isdigit() and int(string) > 0 and int(string) < 6:
                 choices.append(int(string))
             else:
-                self._brain.invalidCard()
+                self._brain.invalid_card()
         return choices
 
     def replace(self, deck):
-        print("=", self.getName(), "=")
-        self.showCards("graphic")
-        self._brain.switchInfos()
-        thrown = self.giveSelectedCards(self.selectCards())
+        print("=", self.get_name(), "=")
+        self.show_cards("graphic")
+        self._brain.switch_infos()
+        thrown = self.give_selected_cards(self.select_cards())
         for card in thrown:
-            self.takeCardFromDeck(deck, card.getIndex())
-        if len(thrown):
-            self._brain.newHand()
-            self.showCards("graphic")
+            self.take_card_from_deck(deck, card.get_index())
+        if thrown:
+            self._brain.new_hand()
+            self.show_cards("graphic")
         else:
-            self._brain.noChanges()
+            self._brain.no_changes()
 
     def action(self, phase, highest):
-        print("=", self.getName(), phase, "=")
-        self.showCards("graphic")
-        self._brain.displayCurrentChips(self.chips)
-        self._brain.myBet(self.state)
+        print("=", self.get_name(), phase, "=")
+        self.show_cards("graphic")
+        self._brain.display_current_chips(self.chips)
+        self._brain.my_bet(self.state)
         call = highest - self.state
-        self._brain.displayCurrentBet(call)
-        self._brain.availableActions()
+        self._brain.display_current_bet(call)
+        self._brain.available_actions()
         while True:
             action = self._brain.thinking()
             if "bet" in action.lower():
                 try:
-                    amount = int(action.split(' ')[1])
+                    amount = int(action.split(" ")[1])
                     if amount >= call:
                         if self.play(amount) != -1:
                             return amount
-                        self._brain.chipsMissing()
+                        self._brain.chips_missing()
                     else:
-                        self._brain.moreChips(call)
-                except:
-                    self._brain.betAmount()
-                    pass
+                        self._brain.more_chips(call)
+                except Exception:
+                    self._brain.bet_amount()
             elif "follow" in action.lower():
                 if self.play(call) != -1:
                     return call
-                self._brain.moreChips(call)
+                self._brain.more_chips(call)
             elif "check" in action.lower():
                 if call == 0:
                     return call
-                self._brain.invalidCheck()
+                self._brain.invalid_check()
             elif "fold" in action.lower():
                 self.state = -1
                 return -1
             elif "all-in" in action.lower():
-                maxChips = self.chips
-                if self.play(maxChips) != -1:
-                    return maxChips
-                self._brain.actionError()
+                max_chips = self.chips
+                if self.play(max_chips) != -1:
+                    return max_chips
+                self._brain.action_error()
             else:
-                self._brain.invalidAction()
+                self._brain.invalid_action()

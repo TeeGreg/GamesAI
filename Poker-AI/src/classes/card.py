@@ -24,15 +24,15 @@ class Card:
         style += "  |_______|"
         print(style)
 
-    def getValues(self):
+    def get_values(self):
         return {'index': self.index, 'color': self.color, 'number': self.number}
 
-    def setIndex(self, index):
+    def set_index(self, index):
         self.index = index
 
-    def getIndex(self):
+    def get_index(self):
         return self.index
 
     def display(self):
         self._print(self.color, self.number, self.index)
-        return self.getValues()
+        return self.get_values()
