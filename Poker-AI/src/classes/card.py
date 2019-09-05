@@ -13,16 +13,6 @@ class Card:
         self.number = number
         self.index = 0
 
-    def _print(self, color, number, index):
-        number = self._values[number] if number > 10 else number
-        style = str(index) + "." + " _______\n"
-        style += '  |' + str(number) + self._symbols[color]
-        if isinstance(number, int) and number > 9:
-            style += '    |\n'
-        else:
-            style += '     |\n'
-        style += "  |_______|"
-        print(style)
 
     def get_values(self):
         return {'index': self.index, 'color': self.color, 'number': self.number}
@@ -34,5 +24,37 @@ class Card:
         return self.index
 
     def display(self):
-        self._print(self.color, self.number, self.index)
+        print(self)
         return self.get_values()
+
+    def __str__(self):
+        number = self._values[self.number] if self.number > 10 else self.number
+        style = str(self.index) + "." + " _______\n"
+        style += '  |' + str(number) + self._symbols[self.color]
+        if isinstance(number, int) and number > 9:
+            style += '    |\n'
+        else:
+            style += '     |\n'
+        style += "  |_______|"
+        return style
+
+    def __repr__(self):
+        return str(self.get_values())
+
+    def __eq__(self, other):
+        return self.number == other.number
+
+    def __ne__(self, other):
+        return self.number != other.number
+
+    def __lt__(self, other):
+        return self.number < other.number
+
+    def __le__(self, other):
+        return self.number <= other.number
+
+    def __gt__(self, other):
+        return self.number > other.number
+
+    def __ge__(self, other):
+        return self.number >= other.number
