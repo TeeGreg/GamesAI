@@ -1,13 +1,11 @@
 # DECK
 from classes.deck import Deck
 
-# PLAYERS
-# from classes.player import Player
-
 
 class Table:
-    def __init__(self, players, blind):
+    def __init__(self, players, blind=50, mode="normal"):
         self._players = players
+        self._mode = mode
         self._blind = blind
         self._deck = Deck()
         self.pot = 0
@@ -43,10 +41,14 @@ class Table:
             player.take_cards(cards)
 
     def return_cards(self):
+        cards = []
         for player in self._players:
-            cards = player.give_cards()
-            for card in cards:
-                self._deck.get_card(card)
+            cards.extend(player.give_cards())
+        for side_card in self._deck.side[:]:
+            cards.append(side_card)
+            self._deck.side.remove(side_card)
+        for card in cards:
+            self._deck.get_card(card)
 
     def are_player_ok(self):
         leader = 0
@@ -103,11 +105,15 @@ class Table:
     def switch_phase(self):
         self._phase_begin_informations("SWITCH PHASE")
         for player in self._players:
-            player.replace(self._deck)
+            thrown = player.give_selected_cards(self._deck, player.replace(self._deck))
+            for card in thrown:
+                player.take_card_from_deck(self._deck, card.get_index())
+            player.new_hand(thrown)
 
     def reveal_phase(self):
-        self._phase_begin_informations("REVEAL")
-        self.players_action("reveal")
+        if self._mode == "normal":
+            self._phase_begin_informations("REVEAL")
+            self.players_action("reveal")
         # WINNER ?
 
     def play_one_hand(self):
@@ -121,11 +127,11 @@ class Table:
         # DISTRIBUTING RANDOM CARDS TO PLAYERS
         self.distribute_cards()
         # PREFLOP PHASE
-        self.pre_flop(self._blind)
+        if self._mode == "normal":
+            self.pre_flop(self._blind)
         # CHANGE CARDS PHASE
         self.switch_phase()
         # LAST PHASE WHERE CARDS ARE REVEALED
-        self.reveal_phase()
-        # GIVING BACK PLAYERS CARDS TO DECK
+        # BRING BACK CARDS TO DECK
         self.return_cards()
         print("======END======")

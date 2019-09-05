@@ -1,4 +1,3 @@
-# from classes.card import Card
 from classes.informations import Informations
 
 
@@ -47,12 +46,13 @@ class Player:
         self._hand = []
         return ret
 
-    def give_selected_cards(self, indexes):
+    def give_selected_cards(self, deck, indexes):
         cards = []
         for card in self._hand[:]:
             if card.get_index() in indexes:
                 cards.append(card)
                 self._hand.remove(card)
+                deck.get_card(card, "side")
         return cards
 
     def play(self, play):
@@ -62,6 +62,20 @@ class Player:
             return play
         return -1
 
+
+class AIPlayer(Player):
+    def new_hand(self, thrown):
+        print("____New HAND____")
+        self.show_cards("graphic")
+
+    def select_cards(self):
+        print("No selected AI")
+
+    def replace(self, deck):
+        print("=", self.get_name(), "=")
+        self.show_cards("graphic")
+        ret = self.select_cards()
+        return ret
 
 class HumanPlayer(Player):
     def select_cards(self):
@@ -76,18 +90,19 @@ class HumanPlayer(Player):
                 self._brain.invalid_card()
         return choices
 
-    def replace(self, deck):
-        print("=", self.get_name(), "=")
-        self.show_cards("graphic")
-        self._brain.switch_infos()
-        thrown = self.give_selected_cards(self.select_cards())
-        for card in thrown:
-            self.take_card_from_deck(deck, card.get_index())
+    def new_hand(self, thrown):
         if thrown:
             self._brain.new_hand()
             self.show_cards("graphic")
         else:
             self._brain.no_changes()
+
+    def replace(self, deck):
+        print("=", self.get_name(), "=")
+        self.show_cards("graphic")
+        self._brain.switch_infos()
+        ret = self.select_cards()
+        return ret
 
     def action(self, phase, highest):
         print("=", self.get_name(), phase, "=")

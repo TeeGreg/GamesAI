@@ -5,7 +5,7 @@
 
 class Card:
 
-    _values = {11: "J", 12: "Q", 13: "K"}
+    _values = {11: "J", 12: "Q", 13: "K", 14: "A"}
     _symbols = {"Clubs": "♣️", "Diamonds": "♦️", "Hearts": "♥️", "Spades": "♠️"}
 
     def __init__(self, color, number):
